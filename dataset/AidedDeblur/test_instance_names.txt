@@ -1,0 +1,2 @@
+./dataset/AidedDeblur/test/000001
+./dataset/AidedDeblur/test/000006
