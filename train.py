@@ -46,7 +46,7 @@ def train(args):
     criterion_L2 = nn.MSELoss().to(device)
     criterion_GAN = GANLoss().to(device)
     criterion_DarkChannel = DarkChannelLoss().to(device)
-    criterion_Gradient = GradientLoss().to(device)
+    criterion_Gradient = GradientLoss(device=device).to(device)
 
     optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
     optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999))

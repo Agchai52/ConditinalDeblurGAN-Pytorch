@@ -238,7 +238,7 @@ class DarkChannelLoss(nn.Module):
 
 
 class GradientLoss(nn.Module):
-    def __init__(self, kernel_size=3):
+    def __init__(self, kernel_size=3, device="cpu"):
         super(GradientLoss, self).__init__()
         self.loss = nn.L1Loss()
         self.kernel_size = kernel_size
@@ -265,8 +265,8 @@ class GradientLoss(nn.Module):
         filter_v = filter_v.flip(-1).flip(-2)
 
         # Convolution
-        gradient_h = F.conv2d(x, filter_h)
-        gradient_v = F.conv2d(x, filter_v)
+        gradient_h = F.conv2d(x, filter_h).to(device)
+        gradient_v = F.conv2d(x, filter_v).to(device)
 
         return gradient_h, gradient_v
 
