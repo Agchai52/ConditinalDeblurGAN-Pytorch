@@ -92,7 +92,7 @@ def train(args):
             loss_d_real = criterion_GAN(pred_real, True)
 
             # combine d loss
-            loss_d = loss_d_fake + loss_d_real
+            loss_d = (loss_d_fake + loss_d_real) * 10
 
             loss_d.backward()
             optimizer_D.step()
@@ -174,6 +174,9 @@ def train(args):
             all_psnr.append(psnr)
         PSNR_average.append(sum(all_psnr) / len(test_data_loader))
         print("===> Avg. PSNR: {:.4f} dB".format(sum(all_psnr) / len(test_data_loader)))
+
+    print("===> Average PSNR for each eposh")
+    print(PSNR_average)
 
     print("===> Saving Losses")
     plt.figure()
