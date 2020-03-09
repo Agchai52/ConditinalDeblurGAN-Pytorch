@@ -59,7 +59,7 @@ if not os.path.exists(args.checkpoint_dir):
 if args.gpu < 0 or not torch.cuda.is_available():
     cuda_id = -1
 else:
-    cuda_id = args.gpu
+    cuda_id = torch.device('cuda:{}'.format(args.gpu))
 
 cudnn.benchmark = True
 
