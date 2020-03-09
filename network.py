@@ -244,6 +244,7 @@ class GradientLoss(nn.Module):
         self.kernel_size = kernel_size
         self.pad_size = (self.kernel_size - 1) // 2
         self.unfold = nn.Unfold(self.kernel_size)
+        self.device = device
 
     def forward(self, x):
         """
@@ -264,9 +265,11 @@ class GradientLoss(nn.Module):
         filter_h = filter_h.flip(-1).flip(-2)
         filter_v = filter_v.flip(-1).flip(-2)
 
+        filter_h = filter_h.to(self.device)
+        filter_v = filter_v.to(self.device)
         # Convolution
-        gradient_h = F.conv2d(x, filter_h).to(device)
-        gradient_v = F.conv2d(x, filter_v).to(device)
+        gradient_h = F.conv2d(x, filter_h)  # .to(device)
+        gradient_v = F.conv2d(x, filter_v)  # .to(device)
 
         return gradient_h, gradient_v
 
