@@ -198,8 +198,8 @@ def train(args):
     plt.savefig("plot_g_loss.jpg")
 
     plt.figure()
-    plt.plot(L2_losses[0:-1:100], 'b-', label='l2_loss')
-    plt.plot(Grad_losses[0:-1:100], 'g-', label='grad_loss')
+    plt.plot(L2_losses[0:-1:100], 'b--', label='l2_loss')
+    plt.plot(Grad_losses[0:-1:100], 'g:', label='grad_loss')
     plt.plot(DarkCha_losses[0:-1:100], 'r-', label='dc_loss')
     plt.xlabel("iteration*100")
     plt.ylabel("Error")
