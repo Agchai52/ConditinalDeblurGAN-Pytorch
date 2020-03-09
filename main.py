@@ -67,7 +67,8 @@ torch.manual_seed(args.seed)
 
 
 with torch.cuda.device(cuda_id):
-    print("Current device is: {}".format(cuda_id))
+    print("Current device is: ", torch.cuda.current_device())
+    exit()
     if args.phase == 'train':
         train.train(args)
 
