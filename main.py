@@ -61,10 +61,6 @@ if args.gpu < 0 or not torch.cuda.is_available():
 else:
     cuda_id = args.gpu
 
-print(args.gpu)
-print(cuda_id)
-print(torch.cuda.is_available())
-exit()
 cudnn.benchmark = True
 
 torch.manual_seed(args.seed)
@@ -72,6 +68,7 @@ torch.manual_seed(args.seed)
 
 with torch.cuda.device(cuda_id):
     print("Current device is: {}".format(cuda_id))
+    exit()
     if args.phase == 'train':
         train.train(args)
 
