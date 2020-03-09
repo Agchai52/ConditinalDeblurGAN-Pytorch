@@ -69,6 +69,10 @@ torch.manual_seed(args.seed)
 with torch.cuda.device(cuda_id):
     print("Current device is: ", torch.cuda.current_device())
     if args.phase == 'train':
+        if not os.path.exists("checkpoint/{}".format(args.dataset_name)):
+            os.makedirs("checkpoint/{}".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netG".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netD".format(args.dataset_name))
         if not os.path.exists(args.test_dir):
             os.makedirs(args.test_dir)
         train.train(args)
