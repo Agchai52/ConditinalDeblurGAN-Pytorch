@@ -13,9 +13,14 @@ def test(args):
     device = torch.device('cuda:{}'.format(args.gpu) if (torch.cuda.is_available() and args.gpu > 0) else "cpu")
     print("====> Loading model")
     net_g_path = "checkpoint/{}/netG".format(args.dataset_name)
-    model_path = find_latest_model(net_g_path)
-    net_G = torch.load(model_path).to(device)
-    print(model_path)
+    if not find_latest_model(net_g_path):
+        print(" [!] Load failed...")
+        raise Exception('No model to load for testing!')
+    else:
+        print(" [*] Load SUCCESS")
+        model_path_G = find_latest_model(net_g_path)
+        net_G = torch.load(model_path_G).to(device)
+        print(model_path_G)
 
     print("====> Loading data")
     ############################

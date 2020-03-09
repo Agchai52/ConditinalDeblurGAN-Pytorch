@@ -25,8 +25,14 @@ def psnr(img1, img2):
     return 20 * math.log10(PIXEL_MAX / math.sqrt(mse))
 
 
-def find_latest_model(net_g_path):
-    file_list = os.listdir(net_g_path)
+def find_latest_model(net_path):
+    file_list = os.listdir(net_path)
     model_names = [f[13:-4] for f in file_list if ".pth" in f]
-    iter_num = max(model_names)
-    return os.path.join(net_g_path, "G_model_step_{}.pth".format(iter_num))
+    if len(model_names) == 0:
+        return False
+    else:
+        iter_num = max(model_names)
+        if net_path[-1] == 'G':
+            return os.path.join(net_path, "G_model_step_{}.pth".format(iter_num))
+        elif net_path[-1] == 'D':
+            return os.path.join(net_path, "D_model_step_{}.pth".format(iter_num))
