@@ -153,13 +153,6 @@ def train(args):
             DarkCha_losses.append(loss_g_darkCh.item())
 
             if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
-                if not os.path.exists("checkpoint"):
-                    os.mkdir("checkpoint")
-                if not os.path.exists("checkpoint/{}".format(args.dataset_name)):
-                    os.mkdir("checkpoint/{}".format(args.dataset_name))
-                if not os.path.exists(os.path.join("checkpoint", "{}/netG/".format(args.dataset_name))):
-                    os.mkdir(os.path.join("checkpoint", "{}/netG/".format(args.dataset_name)))
-                    os.mkdir(os.path.join("checkpoint", "{}/netD/".format(args.dataset_name)))
                 net_G_save_path = "checkpoint/{}/netG/G_model_step_{}.pth".format(args.dataset_name, counter)
                 net_D_save_path = "checkpoint/{}/netD/D_model_step_{}.pth".format(args.dataset_name, counter)
                 torch.save(net_G, net_G_save_path)
