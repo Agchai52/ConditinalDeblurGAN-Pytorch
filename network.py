@@ -268,8 +268,8 @@ class GradientLoss(nn.Module):
         filter_h = filter_h.to(self.device)
         filter_v = filter_v.to(self.device)
         # Convolution
-        gradient_h = F.conv2d(x, filter_h)  # .to(device)
-        gradient_v = F.conv2d(x, filter_v)  # .to(device)
+        gradient_h = F.conv2d(x, filter_h)
+        gradient_v = F.conv2d(x, filter_v)
 
         return gradient_h, gradient_v
 

@@ -10,10 +10,11 @@ from skimage.measure import compare_ssim as ssim
 
 
 def test(args):
+    device = torch.device('cuda:{}'.format(args.gpu) if (torch.cuda.is_available() and args.gpu > 0) else "cpu")
     print("====> Loading model")
     net_g_path = "checkpoint/{}/netG".format(args.dataset_name)
     model_path = find_latest_model(net_g_path)
-    net_G = torch.load(model_path)
+    net_G = torch.load(model_path).to(device)
     print(model_path)
 
     print("====> Loading data")
@@ -39,7 +40,7 @@ def test(args):
     all_ssim = []
     start_time = time.time()
     for batch in test_data_loader:
-        real_A, real_B, img_name = batch[0], batch[1], batch[2]
+        real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
         pred_B = net_G(real_A)
         if img_name[0][-2:] == '01':
             img_B = pred_B.detach().squeeze(0)
