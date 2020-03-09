@@ -63,6 +63,7 @@ else:
 
 print(args.gpu)
 print(cuda_id)
+print(torch.cuda.is_available())
 exit()
 cudnn.benchmark = True
 
