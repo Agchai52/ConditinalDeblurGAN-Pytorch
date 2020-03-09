@@ -92,7 +92,7 @@ def train(args):
             loss_d_real = criterion_GAN(pred_real, True)
 
             # combine d loss
-            loss_d = (loss_d_fake + loss_d_real) * 0.5
+            loss_d = loss_d_fake + loss_d_real
 
             loss_d.backward()
             optimizer_D.step()
@@ -118,6 +118,29 @@ def train(args):
 
             loss_g.backward()
             optimizer_G.step()
+
+            ############################
+            # (3) Update G network: maximize log(D(G(z)))
+            ###########################
+            optimizer_G.zero_grad()
+
+            # G(A) should fake the discriminator
+            fake_AB = torch.cat((real_A, fake_B), 1)
+            pred_fake = net_D(fake_AB)
+            loss_g_gan = criterion_GAN(pred_fake, True)
+
+            # G(A) = B
+            loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
+            loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
+            loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
+
+            loss_g = loss_g_gan \
+                     + (loss_g_l2 + loss_g_grad) \
+                     + loss_g_darkCh
+
+            loss_g.backward()
+            optimizer_G.step()
+
             counter += 1
 
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
