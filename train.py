@@ -116,7 +116,7 @@ def train(args):
                      + (loss_g_l2 + loss_g_grad)  \
                      + loss_g_darkCh
 
-            loss_g.backward()
+            loss_g.backward(retain_graph=True)
             optimizer_G.step()
 
             ############################
