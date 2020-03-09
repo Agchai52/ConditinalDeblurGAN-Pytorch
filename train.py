@@ -31,9 +31,11 @@ def train(args):
     train_data_loader = DataLoader(DeblurDataset(train_data, args), batch_size=args.batch_size, shuffle=True)
     test_data_loader = DataLoader(DeblurDataset(test_data, args, False), batch_size=args.batch_size, shuffle=False)
 
+    device = torch.device('cuda:{}'.format(args.gpu) if (torch.cuda.is_available() and args.gpu > 0) else "cpu")
+
     print('===> Building models')
-    net_G = Generator(args)
-    net_D = Discriminator(args)
+    net_G = Generator(args).to(device)
+    net_D = Discriminator(args).to(device)
     net_D.apply(weights_init)
     net_G.apply(weights_init)
 
@@ -41,10 +43,10 @@ def train(args):
     print(net_D)
 
     print('===> Setting up loss functions')
-    criterion_L2 = nn.MSELoss()
-    criterion_GAN = GANLoss()
-    criterion_DarkChannel = DarkChannelLoss()
-    criterion_Gradient = GradientLoss()
+    criterion_L2 = nn.MSELoss().to(device)
+    criterion_GAN = GANLoss().to(device)
+    criterion_DarkChannel = DarkChannelLoss().to(device)
+    criterion_Gradient = GradientLoss().to(device)
 
     optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
     optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
@@ -59,7 +61,7 @@ def train(args):
     print('===> Training')
     for epoch in range(args.epoch):
         for iteration, batch in enumerate(train_data_loader, 1):
-            real_A, real_B, img_name = batch[0], batch[1], batch[2]
+            real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
             fake_B = net_G(real_A)
 
             ############################
@@ -132,7 +134,7 @@ def train(args):
 
         all_psnr = []
         for batch in test_data_loader:
-            real_A, real_B, img_name = batch[0], batch[1], batch[2]
+            real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
             pred_B = net_G(real_A)
             if epoch == args.epoch - 1 and img_name[0][-2:] == '01':
                 img_B = pred_B.detach().squeeze(0)
