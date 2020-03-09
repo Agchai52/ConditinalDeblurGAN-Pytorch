@@ -61,6 +61,7 @@ if args.gpu > -1 or not torch.cuda.is_available():
 else:
     cuda_id = args.gpu
 
+exit()
 cudnn.benchmark = True
 
 torch.manual_seed(args.seed)
