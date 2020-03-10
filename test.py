@@ -48,7 +48,7 @@ def test(args):
         real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
         pred_B = net_G(real_A)
         if img_name[0][-2:] == '01':
-            img_B = pred_B.detach().squeeze(0)
+            img_B = pred_B.detach().squeeze(0).cpu()
             if not os.path.exists("result"):
                 os.makedirs("result")
             save_img(img_B, 'result/test_' + img_name[0])
