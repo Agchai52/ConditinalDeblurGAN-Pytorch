@@ -58,6 +58,10 @@ def train(args):
     optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
     optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
 
+    #lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch,opt.decay_epoch).step)
+    #lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch,opt.decay_epoch).step)
+
+    params = net_G.parameters()
     counter = 0
     PSNR_average = []
 
@@ -134,6 +138,9 @@ def train(args):
             loss_g.backward()
             optimizer_G.step()
 
+            if counter % 100 == 1:
+                print('Current Learning rate is:')
+                print(optimizer_G.param_groups[0]['lr'])
             counter += 1
 
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
