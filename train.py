@@ -55,11 +55,11 @@ def train(args):
     criterion_DarkChannel = DarkChannelLoss().to(device)
     criterion_Gradient = GradientLoss(device=device).to(device)
 
-    optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
-    optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
+    optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
+    optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
 
-    #lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch,opt.decay_epoch).step)
-    #lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(opt.n_epochs, opt.epoch,opt.decay_epoch).step)
+    lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
+    lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
 
     params = net_G.parameters()
     counter = 0
@@ -141,6 +141,7 @@ def train(args):
             if counter % 100 == 1:
                 print('Current Learning rate is:')
                 print(optimizer_G.param_groups[0]['lr'])
+                print(lr_scheduler_G.get_lr())
             counter += 1
 
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
@@ -159,6 +160,10 @@ def train(args):
                 torch.save(net_G, net_G_save_path)
                 torch.save(net_D, net_D_save_path)
                 print("Checkpoint saved to {}".format("checkpoint/" + args.dataset_name))
+
+        # Update Learning rate
+        lr_scheduler_G.step()
+        lr_scheduler_D.step()
 
         all_psnr = []
         for batch in test_data_loader:
