@@ -1,11 +1,11 @@
-"""
-Load and Save a Single Image
-"""
 from __future__ import division
+import os
 import numpy as np
 import math
 from PIL import Image
-import os
+import matplotlib as mpl
+mpl.use('TkAgg')
+import matplotlib.pyplot as plt
 
 
 def save_img(image_tensor, filename):
@@ -36,3 +36,52 @@ def find_latest_model(net_path):
             return os.path.join(net_path, "G_model_step_{}.pth".format(iter_num))
         elif net_path[-1] == 'D':
             return os.path.join(net_path, "D_model_step_{}.pth".format(iter_num))
+
+
+def plot_losses():
+    loss_record = "loss_record.txt"
+    psnr_record = "psnr_record.txt"
+
+    losses_dg = np.loadtxt(loss_record)
+    psnr_ave = np.loadtxt(psnr_record)
+
+    plt.figure()
+    plt.plot(losses_dg[0:-1:100, 0], 'r-', label='d_loss')
+    plt.xlabel("iteration*100")
+    plt.ylabel("Error")
+    #plt.xlim(xmin=-5, xmax=300)  # xmax=300
+    #plt.ylim(ymin=0, ymax=60)  # ymax=60
+    plt.title("Discriminator Loss")
+    plt.savefig("plot_d_loss.jpg")
+
+    plt.figure()
+    plt.plot(losses_dg[0:-1:100, 1], 'g-', label='g_loss')
+    plt.xlabel("iteration*100")
+    plt.ylabel("Error")
+    #plt.xlim(xmin=-5, xmax=300)
+    #plt.ylim(ymin=0, ymax=60)
+    plt.title("Generator Loss")
+    plt.savefig("plot_g_loss.jpg")
+
+    plt.figure()
+    plt.plot(losses_dg[0:-1:100, 2], 'b--', label='l2_loss')
+    plt.plot(losses_dg[0:-1:100, 3], 'g:', label='grad_loss')
+    plt.plot(losses_dg[0:-1:100, 4], 'r-', label='dc_loss')
+    plt.xlabel("iteration*100")
+    plt.ylabel("Error")
+    # plt.xlim(xmin=-5, xmax=480)
+    # plt.ylim(ymin=0, ymax=16)
+    plt.title("L2_Grad_DarkChan Loss")
+    plt.savefig("plot_3g_losses.jpg")
+    # plt.show()
+
+    plt.figure()
+    plt.plot(psnr_ave, 'r-')
+    plt.xlabel("epochs")
+    plt.ylabel("Average PSNR")
+    # plt.xlim(xmin=-5, xmax=300)  # xmax=300
+    # plt.ylim(ymin=0, ymax=60)  # ymax=60
+    plt.title("Validation PSNR")
+    plt.savefig("plot_psnr_loss.jpg")
+
+

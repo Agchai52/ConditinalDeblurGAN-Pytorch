@@ -43,17 +43,15 @@ class Generator(nn.Module):
         5. (8*ngf, 16, 16)
         6. (8*ngf, 16, 16)
         7. (8*ngf, 16, 16)
-        8. (8*ngf, 16, 16)
 
         Decoder with skip connection
         1. (2*8*ngf, 16, 16)
         2. (2*8*ngf, 16, 16)
         3. (2*8*ngf, 16, 16)
-        4. (2*8*ngf, 16, 16)
-        5. (2*4*ngf, 32, 32)
-        6. (2*2*ngf, 64, 64)
-        7. (2*1*ngf, 128, 12
-        8. (3, 256, 256)
+        4. (2*4*ngf, 32, 32)
+        5. (2*2*ngf, 64, 64)
+        6. (2*1*ngf, 128, 12
+        7. (3, 256, 256)
         """
         e_layer1 = self.e1(img)
         e_layer2 = self.e2(e_layer1)
@@ -62,31 +60,27 @@ class Generator(nn.Module):
         e_layer5 = self.e5(e_layer4)
         e_layer6 = self.e5(e_layer5)
         e_layer7 = self.e5(e_layer6)
-        e_layer8 = self.e5(e_layer7)
 
-        d_layer1 = self.d0(e_layer8)
-        d_layer1 = torch.cat([d_layer1, e_layer7], 1)
+        d_layer1 = self.d0(e_layer7)
+        d_layer1 = torch.cat([d_layer1, e_layer6], 1)
 
         d_layer2 = self.d1(d_layer1)
-        d_layer2 = torch.cat([d_layer2, e_layer6], 1)
+        d_layer2 = torch.cat([d_layer2, e_layer5], 1)
 
         d_layer3 = self.d1(d_layer2)
-        d_layer3 = torch.cat([d_layer3, e_layer5], 1)
+        d_layer3 = torch.cat([d_layer3, e_layer4], 1)
 
-        d_layer4 = self.d1(d_layer3)
-        d_layer4 = torch.cat([d_layer4, e_layer4], 1)
+        d_layer4 = self.d2(d_layer3)
+        d_layer4 = torch.cat([d_layer4, e_layer3], 1)
 
-        d_layer5 = self.d2(d_layer4)
-        d_layer5 = torch.cat([d_layer5, e_layer3], 1)
+        d_layer5 = self.d3(d_layer4)
+        d_layer5 = torch.cat([d_layer5, e_layer2], 1)
 
-        d_layer6 = self.d3(d_layer5)
-        d_layer6 = torch.cat([d_layer6, e_layer2], 1)
+        d_layer6 = self.d4(d_layer5)
+        d_layer6 = torch.cat([d_layer6, e_layer1], 1)
 
-        d_layer7 = self.d4(d_layer6)
-        d_layer7 = torch.cat([d_layer7, e_layer1], 1)
-
-        d_layer8 = self.d5(d_layer7)
-        d_layer9 = self.d6(d_layer8)
+        d_layer7 = self.d5(d_layer6)
+        d_layer8 = self.d6(d_layer7)
 
         # print(img.shape)
         # print(e_layer1.shape)
@@ -106,7 +100,7 @@ class Generator(nn.Module):
         # print(d_layer6.shape)
         # print(d_layer7.shape)
         # print(d_layer8.shape)
-        return d_layer9
+        return d_layer8
 
 
 class Discriminator(nn.Module):

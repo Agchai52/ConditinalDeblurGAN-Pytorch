@@ -9,10 +9,6 @@ from utils import *
 from network import *
 from Dataset import DeblurDataset
 
-import matplotlib as mpl
-mpl.use('TkAgg')
-import matplotlib.pyplot as plt
-
 
 def train(args):
     print('===> Loading datasets')
@@ -63,13 +59,10 @@ def train(args):
     optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999))
 
     counter = 0
-    G_losses = []
-    D_losses = []
-    L2_losses = []
-    Grad_losses = []
-    DarkCha_losses = []
     PSNR_average = []
 
+    loss_record = "loss_record.txt"
+    psnr_record = "psnr_record.txt"
     print('===> Training')
     for epoch in range(args.epoch):
         for iteration, batch in enumerate(train_data_loader, 1):
@@ -146,11 +139,12 @@ def train(args):
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
             epoch, iteration, len(train_data_loader), loss_d.item(), loss_g.item(), loss_g_l2, loss_g_grad, loss_g_darkCh))
 
-            G_losses.append(loss_g.item())
-            D_losses.append(loss_d.item())
-            L2_losses.append(loss_g_l2.item())
-            Grad_losses.append(loss_g_grad.item())
-            DarkCha_losses.append(loss_g_darkCh.item())
+            # To record losses in a .txt file
+            losses_dg = [loss_d.item(), loss_g.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
+            losses_dg_str = " ".join(str(v) for v in losses_dg)
+
+            with open(loss_record, 'a+') as file:
+                file.writelines(losses_dg_str + "\n")
 
             if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
                 net_G_save_path = "checkpoint/{}/netG/G_model_step_{}.pth".format(args.dataset_name, counter)
@@ -158,7 +152,6 @@ def train(args):
                 torch.save(net_G, net_G_save_path)
                 torch.save(net_D, net_D_save_path)
                 print("Checkpoint saved to {}".format("checkpoint/" + args.dataset_name))
-
 
         all_psnr = []
         for batch in test_data_loader:
@@ -173,51 +166,15 @@ def train(args):
             psnr = 10 * log10(1 / mse.item())
             all_psnr.append(psnr)
         PSNR_average.append(sum(all_psnr) / len(test_data_loader))
+        with open(psnr_record, 'a+') as file:
+            file.writelines(str(sum(all_psnr) / len(test_data_loader)) + "\n")
         print("===> Avg. PSNR: {:.4f} dB".format(sum(all_psnr) / len(test_data_loader)))
 
-    print("===> Average PSNR for each eposh")
+    print("===> Average Validation PSNR for each epoch")
     print(PSNR_average)
 
     print("===> Saving Losses")
-    plt.figure()
-    plt.plot(D_losses[0:-1:100], 'r-', label='d_loss')
-    plt.xlabel("iteration*100")
-    plt.ylabel("Error")
-    #plt.xlim(xmin=-5, xmax=300)  # xmax=300
-    #plt.ylim(ymin=0, ymax=60)  # ymax=60
-    plt.title("Discriminator Loss")
-    plt.savefig("plot_d_loss.jpg")
-
-    plt.figure()
-    plt.plot(G_losses[0:-1:100], 'g-', label='g_loss')
-    plt.xlabel("iteration*100")
-    plt.ylabel("Error")
-    #plt.xlim(xmin=-5, xmax=300)
-    #plt.ylim(ymin=0, ymax=60)
-    plt.title("Generator Loss")
-    plt.savefig("plot_g_loss.jpg")
-
-    plt.figure()
-    plt.plot(L2_losses[0:-1:100], 'b--', label='l2_loss')
-    plt.plot(Grad_losses[0:-1:100], 'g:', label='grad_loss')
-    plt.plot(DarkCha_losses[0:-1:100], 'r-', label='dc_loss')
-    plt.xlabel("iteration*100")
-    plt.ylabel("Error")
-    #plt.xlim(xmin=-5, xmax=480)
-    #plt.ylim(ymin=0, ymax=16)
-    plt.title("DarkChannel Loss")
-    plt.savefig("plot_3g_losses.jpg")
-    #plt.show()
-
-    plt.figure()
-    plt.plot(PSNR_average, 'r-')
-    plt.xlabel("iteration")
-    plt.ylabel("Average PSNR")
-    # plt.xlim(xmin=-5, xmax=300)  # xmax=300
-    # plt.ylim(ymin=0, ymax=60)  # ymax=60
-    plt.title("Validation PSNR")
-    plt.savefig("plot_psnr_loss.jpg")
-
+    plot_losses()
     print("===> Training finished")
 
 

@@ -16,7 +16,7 @@ from network import *
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset_name', dest='dataset_name', default='BlindDeblurGAN', help='BlindDeblurGAN')
-parser.add_argument('--epoch', dest='epoch', type=int, default=15, help='# of epoch')
+parser.add_argument('--epoch', dest='epoch', type=int, default=20, help='# of epoch')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=1, help='# images in batch')
 parser.add_argument('--train_size', dest='train_size', type=int, default=1e8, help='# images used to train')
 parser.add_argument('--load_size', dest='load_size', type=int, default=360, help='scale images to this size')
@@ -41,7 +41,7 @@ parser.add_argument('--checkpoint_dir', dest='checkpoint_dir', default='./checkp
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
 parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=50.0, help='weight on L1 term in objective')
-parser.add_argument('--dark_channel_lambda', dest='dark_channel_lambda', type=float, default=1e4, help='weight on Dark Channel loss in objective')
+parser.add_argument('--dark_channel_lambda', dest='dark_channel_lambda', type=float, default=1e3, help='weight on Dark Channel loss in objective')
 parser.add_argument('--Perpetual_lambda', dest='Perpetual_lambda', type=float, default=0, help='weight on Perpetual term in objective')
 parser.add_argument('--H', dest='H', default=720, type=int, help='Test size H')
 parser.add_argument('--W', dest='W', default=1280, type=int, help='Test size W')
