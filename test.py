@@ -52,10 +52,10 @@ def test(args):
             if not os.path.exists("result"):
                 os.makedirs("result")
             save_img(img_B, 'result/test_' + img_name[0])
-        real_B = real_B.squeeze(0).permute(1, 2, 0)
-        pred_B = pred_B.detach().squeeze(0).permute(1, 2, 0)
-        real_B = real_B.float().numpy().cpu()
-        pred_B = pred_B.float().numpy().cpu()
+        real_B = real_B.squeeze(0).permute(1, 2, 0).cpu()
+        pred_B = pred_B.detach().squeeze(0).permute(1, 2, 0).cpu()
+        real_B = real_B.float().numpy()
+        pred_B = pred_B.float().numpy()
         real_B = (real_B + 1.0) / 2.0
         pred_B = (pred_B + 1.0) / 2.0
         cur_psnr = psnr(real_B, pred_B)
