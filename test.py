@@ -63,7 +63,7 @@ def test(args):
         all_psnr.append(cur_psnr)
         all_ssim.append(cur_ssim)
         if img_name[0][-2:] == '01':
-            print('test_{}: PSNR = {} dB'.format(img_name[0], psnr))
+            print('test_{}: PSNR = {} dB, SSIM = {}'.format(img_name[0], cur_psnr, cur_ssim))
         #print("Image {}, PSNR = {}, SSIM = {}".format(img_name[0], cur_psnr, cur_ssim))
 
     total_time = time.time() - start_time
