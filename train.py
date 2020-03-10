@@ -164,6 +164,8 @@ def train(args):
             pred_B = (pred_B + 1.0) / 2.0
             mse = criterion_L2(pred_B, real_B)
             psnr = 10 * log10(1 / mse.item())
+            if epoch == args.epoch - 1 and img_name[0][-2:] == '01':
+                print('test_{}: PSNR = {} dB'.format(img_name[0], psnr))
             all_psnr.append(psnr)
         PSNR_average.append(sum(all_psnr) / len(test_data_loader))
         with open(psnr_record, 'a+') as file:
