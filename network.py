@@ -128,7 +128,7 @@ class Discriminator(nn.Module):
     def forward(self, img):
         e_out0 = self.model(img)
         e_out0 = e_out0.view(-1)
-        e_out1 = nn.Linear(e_out0.shape[0], 1)(e_out0).to(self.device)
+        e_out1 = nn.Linear(e_out0.shape[0], 1).to(self.device)(e_out0)
         e_out2 = nn.Sigmoid()(e_out1)
         return e_out2
 
