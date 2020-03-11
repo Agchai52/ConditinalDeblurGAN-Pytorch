@@ -142,7 +142,6 @@ def train(args):
 
             if counter % 100 == 1:
                 print('Current Learning rate is:')
-                print(optimizer_G.param_groups[0]['lr'])
                 print(lr_scheduler_G.get_lr())
             counter += 1
 
