@@ -64,6 +64,8 @@ def train(args):
     params = net_G.parameters()
     counter = 0
     PSNR_average = []
+    #D_loss = []
+    #G_loss = []
 
     loss_record = "loss_record.txt"
     psnr_record = "psnr_record.txt"
@@ -124,12 +126,12 @@ def train(args):
             # G(A) should fake the discriminator
             fake_AB = torch.cat((real_A, fake_B), 1)
             pred_fake = net_D(fake_AB)
-            loss_g_gan = criterion_GAN(pred_fake, True)
+            loss_g_gan = criterion_GAN(pred_fake, True) * args.L1_lambda
 
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
             loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
+            loss_g_grad = criterion_Gradient(fake_B, real_B)
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -144,11 +146,11 @@ def train(args):
                 print(lr_scheduler_G.get_lr())
             counter += 1
 
-            print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
-            epoch, iteration, len(train_data_loader), loss_d.item(), loss_g.item(), loss_g_l2, loss_g_grad, loss_g_darkCh))
+            print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
+            epoch, iteration, len(train_data_loader), loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()))
 
             # To record losses in a .txt file
-            losses_dg = [loss_d.item(), loss_g.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
+            losses_dg = [loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
             losses_dg_str = " ".join(str(v) for v in losses_dg)
 
             with open(loss_record, 'a+') as file:

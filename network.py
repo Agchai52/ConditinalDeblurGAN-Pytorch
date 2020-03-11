@@ -271,6 +271,6 @@ class GradientLoss(nn.Module):
         real_grad_h, real_grad_v = self.forward(real)
         fake_grad_h, fake_grad_v = self.forward(fake)
 
-        return self.loss(real_grad_h, fake_grad_h) + self.loss(real_grad_v, fake_grad_v)
+        return 0.5*self.loss(real_grad_h, fake_grad_h) + 0.5*self.loss(real_grad_v, fake_grad_v)
 
 
