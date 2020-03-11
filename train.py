@@ -140,9 +140,9 @@ def train(args):
             loss_g.backward()
             optimizer_G.step()
 
-            if counter % 100 == 1:
-                print('Current Learning rate is:')
-                print(lr_scheduler_G.get_lr())
+            #if counter % 100 == 1:
+            #    print('Current Learning rate is:')
+            #    print(lr_scheduler_G.get_lr())
             counter += 1
 
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
