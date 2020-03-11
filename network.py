@@ -104,10 +104,11 @@ class Generator(nn.Module):
 
 
 class Discriminator(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, device='cpu'):
         super(Discriminator, self).__init__()
         self.input_nc = args.input_nc * 2
         self.ndf = args.ndf
+        self.device = device
         self.net = [nn.Conv2d(self.input_nc, self.ndf, kernel_size=5, stride=2, padding=3, padding_mode='circular'),
                     nn.LeakyReLU(0.2, inplace=True),
                     nn.Conv2d(self.ndf, self.ndf * 2, kernel_size=5, stride=2, padding=3, padding_mode='circular'),
@@ -127,7 +128,7 @@ class Discriminator(nn.Module):
     def forward(self, img):
         e_out0 = self.model(img)
         e_out0 = e_out0.view(-1)
-        e_out1 = nn.Linear(e_out0.shape[0], 1)(e_out0)
+        e_out1 = nn.Linear(e_out0.shape[0], 1)(e_out0).to(self.device)
         e_out2 = nn.Sigmoid()(e_out1)
         return e_out2
 

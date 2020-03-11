@@ -35,7 +35,7 @@ def train(args):
     if not find_latest_model(net_g_path) or not find_latest_model(net_d_path):
         print(" [!] Load failed...")
         net_G = Generator(args).to(device)
-        net_D = Discriminator(args).to(device)
+        net_D = Discriminator(args, device).to(device)
 
         net_D.apply(weights_init)
         net_G.apply(weights_init)
