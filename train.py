@@ -131,7 +131,7 @@ def train(args):
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
             loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
+            loss_g_grad = criterion_Gradient(fake_B, real_B) * 10
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
