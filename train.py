@@ -58,8 +58,8 @@ def train(args):
     optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
     optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
 
-    lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
-    lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
+    #lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
+    #lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
 
     params = net_G.parameters()
     counter = 0
@@ -99,24 +99,24 @@ def train(args):
             ############################
             # (2) Update G network: maximize log(D(G(z)))
             ###########################
-            #optimizer_G.zero_grad()
-#
-            ## G(A) should fake the discriminator
-            #fake_AB = torch.cat((real_A, fake_B), 1)
-            #pred_fake = net_D(fake_AB)
-            #loss_g_gan = criterion_GAN(pred_fake, True)
-#
-            ## G(A) = B
-            #loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
-            #loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            #loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
-#
-            #loss_g = loss_g_gan \
-            #         + (loss_g_l2 + loss_g_grad)  \
-            #         + loss_g_darkCh
-#
-            #loss_g.backward(retain_graph=True)
-            #optimizer_G.step()
+            optimizer_G.zero_grad()
+
+            # G(A) should fake the discriminator
+            fake_AB = torch.cat((real_A, fake_B), 1)
+            pred_fake = net_D(fake_AB)
+            loss_g_gan = criterion_GAN(pred_fake, True) * 10
+
+            # G(A) = B
+            loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
+            loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
+            loss_g_grad = criterion_Gradient(fake_B, real_B) * 10
+
+            loss_g = loss_g_gan \
+                     + (loss_g_l2 + loss_g_grad) \
+                     + loss_g_darkCh
+
+            loss_g.backward(retain_graph=True)
+            optimizer_G.step()
 #
             ############################
             # (2) Update G network: maximize log(D(G(z)))
@@ -131,7 +131,7 @@ def train(args):
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
             loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B)
+            loss_g_grad = criterion_Gradient(fake_B, real_B) * 10
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -163,8 +163,8 @@ def train(args):
                 print("Checkpoint saved to {}".format("checkpoint/" + args.dataset_name))
 
         # Update Learning rate
-        lr_scheduler_G.step()
-        lr_scheduler_D.step()
+        #lr_scheduler_G.step()
+        #lr_scheduler_D.step()
 
         all_psnr = []
         for batch in test_data_loader:

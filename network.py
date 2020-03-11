@@ -234,7 +234,7 @@ class DarkChannelLoss(nn.Module):
 class GradientLoss(nn.Module):
     def __init__(self, kernel_size=3, device="cpu"):
         super(GradientLoss, self).__init__()
-        self.loss = nn.L1Loss()
+        self.loss = nn.MSELoss()
         self.kernel_size = kernel_size
         self.pad_size = (self.kernel_size - 1) // 2
         self.unfold = nn.Unfold(self.kernel_size)
@@ -271,6 +271,6 @@ class GradientLoss(nn.Module):
         real_grad_h, real_grad_v = self.forward(real)
         fake_grad_h, fake_grad_v = self.forward(fake)
 
-        return self.loss(real_grad_h, fake_grad_h) + self.loss(real_grad_v, fake_grad_v)
+        return self.loss(torch.abs_(real_grad_h - fake_grad_h) + torch.abs_(real_grad_v - fake_grad_v))
 
 
