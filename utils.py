@@ -95,3 +95,4 @@ def plot_losses():
     plt.savefig("plot_psnr_loss.jpg")
 
 
+plot_losses()
