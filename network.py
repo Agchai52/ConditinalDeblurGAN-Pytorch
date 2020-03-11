@@ -271,6 +271,8 @@ class GradientLoss(nn.Module):
         real_grad_h, real_grad_v = self.forward(real)
         fake_grad_h, fake_grad_v = self.forward(fake)
 
-        return self.loss(torch.abs_(real_grad_h - fake_grad_h) + torch.abs_(real_grad_v - fake_grad_v))
+        diff_hv = torch.abs_(real_grad_h - fake_grad_h) + torch.abs_(real_grad_v - fake_grad_v)
+
+        return torch.mean(diff_hv)
 
 
