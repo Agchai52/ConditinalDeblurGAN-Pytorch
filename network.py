@@ -120,12 +120,16 @@ class Discriminator(nn.Module):
                     nn.BatchNorm2d(self.ndf * 8, momentum=0.9),
                     nn.LeakyReLU(0.2, inplace=True),
                     nn.Conv2d(self.ndf * 8, 1, kernel_size=5, stride=1, padding=2, padding_mode='circular'),
-                    nn.Sigmoid()]
+                    ]
 
         self.model = nn.Sequential(*self.net)
 
     def forward(self, img):
-        return self.model(img)
+        e_out0 = self.model(img)
+        e_out0 = e_out0.view(-1)
+        e_out1 = nn.Linear(e_out0.shape[0], 1)(e_out0)
+        e_out2 = nn.Sigmoid()(e_out1)
+        return e_out2
 
 
 class Encoder(nn.Module):
