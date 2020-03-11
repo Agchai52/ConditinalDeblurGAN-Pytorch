@@ -99,34 +99,34 @@ def train(args):
             ############################
             # (2) Update G network: maximize log(D(G(z)))
             ###########################
-            optimizer_G.zero_grad()
-
-            # G(A) should fake the discriminator
-            fake_AB = torch.cat((real_A, fake_B), 1)
-            pred_fake = net_D(fake_AB)
-            loss_g_gan = criterion_GAN(pred_fake, True)
-
-            # G(A) = B
-            loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
-            loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
-
-            loss_g = loss_g_gan \
-                     + (loss_g_l2 + loss_g_grad)  \
-                     + loss_g_darkCh
-
-            loss_g.backward(retain_graph=True)
-            optimizer_G.step()
-
+            #optimizer_G.zero_grad()
+#
+            ## G(A) should fake the discriminator
+            #fake_AB = torch.cat((real_A, fake_B), 1)
+            #pred_fake = net_D(fake_AB)
+            #loss_g_gan = criterion_GAN(pred_fake, True)
+#
+            ## G(A) = B
+            #loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
+            #loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
+            #loss_g_grad = criterion_Gradient(fake_B, real_B) * args.L1_lambda
+#
+            #loss_g = loss_g_gan \
+            #         + (loss_g_l2 + loss_g_grad)  \
+            #         + loss_g_darkCh
+#
+            #loss_g.backward(retain_graph=True)
+            #optimizer_G.step()
+#
             ############################
-            # (3) Update G network: maximize log(D(G(z)))
+            # (2) Update G network: maximize log(D(G(z)))
             ###########################
             optimizer_G.zero_grad()
 
             # G(A) should fake the discriminator
             fake_AB = torch.cat((real_A, fake_B), 1)
             pred_fake = net_D(fake_AB)
-            loss_g_gan = criterion_GAN(pred_fake, True) * args.L1_lambda
+            loss_g_gan = criterion_GAN(pred_fake, True) * 10
 
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
