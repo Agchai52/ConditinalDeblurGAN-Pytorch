@@ -12,15 +12,15 @@ from skimage.measure import compare_ssim as ssim
 def test(args):
     device = torch.device('cuda:{}'.format(args.gpu) if (torch.cuda.is_available() and args.gpu > 0) else "cpu")
     print("====> Loading model")
-    net_g_path = "checkpoint/{}/netG".format(args.dataset_name)
-    if not find_latest_model(net_g_path):
+    net_g_bs_path = "checkpoint/{}/netG_B2S".format(args.dataset_name)
+    if not find_latest_model(net_g_bs_path):
         print(" [!] Load failed...")
         raise Exception('No model to load for testing!')
     else:
         print(" [*] Load SUCCESS")
-        model_path_G = find_latest_model(net_g_path)
-        net_G = torch.load(model_path_G).to(device)
-        print(model_path_G)
+        model_path_G_BS = find_latest_model(net_g_bs_path)
+        netG_B2S = torch.load(model_path_G_BS).to(device)
+        print(model_path_G_BS)
 
     print("====> Loading data")
     ############################
@@ -46,7 +46,7 @@ def test(args):
     start_time = time.time()
     for batch in test_data_loader:
         real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
-        pred_B = net_G(real_A)
+        pred_B = netG_B2S(real_A)
         if img_name[0][-2:] == '01':
             img_B = pred_B.detach().squeeze(0).cpu()
             if not os.path.exists("result"):

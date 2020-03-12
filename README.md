@@ -1,6 +1,6 @@
-# ConditinalDeblurGAN-Pytorch
+# Cycle ConditinalDeblurGAN-Pytorch
 
-This is an implement of DeblurGAN with Pytorch.
+This is an implement of Cycle Conditional DeblurGAN with Pytorch.
 
 ## Prerequisites
 - Python 3.7
