@@ -42,8 +42,8 @@ parser.add_argument('--serial_batch_iter', dest='serial_batch_iter', type=bool, 
 parser.add_argument('--checkpoint_dir', dest='checkpoint_dir', default='./checkpoint', help='models are saved here')
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
-parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=50.0, help='weight on L1 term in objective')
-parser.add_argument('--dark_channel_lambda', dest='dark_channel_lambda', type=float, default=1e3, help='weight on Dark Channel loss in objective')
+parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=5.0, help='weight on L1 term in objective')
+parser.add_argument('--dark_channel_lambda', dest='dark_channel_lambda', type=float, default=100, help='weight on Dark Channel loss in objective')
 parser.add_argument('--Perpetual_lambda', dest='Perpetual_lambda', type=float, default=0, help='weight on Perpetual term in objective')
 parser.add_argument('--H', dest='H', default=720, type=int, help='Test size H')
 parser.add_argument('--W', dest='W', default=1280, type=int, help='Test size W')
@@ -73,8 +73,10 @@ with torch.cuda.device(cuda_id):
     if args.phase == 'train':
         if not os.path.exists("checkpoint/{}".format(args.dataset_name)):
             os.makedirs("checkpoint/{}".format(args.dataset_name))
-            os.makedirs("checkpoint/{}/netG".format(args.dataset_name))
-            os.makedirs("checkpoint/{}/netD".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netG_B2S".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netG_S2B".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netD_B".format(args.dataset_name))
+            os.makedirs("checkpoint/{}/netD_S".format(args.dataset_name))
         if not os.path.exists(args.test_dir):
             os.makedirs(args.test_dir)
         train.train(args)
