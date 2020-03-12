@@ -45,21 +45,21 @@ def test(args):
     all_ssim = []
     start_time = time.time()
     for batch in test_data_loader:
-        real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
-        pred_B = netG_B2S(real_A)
+        real_B, real_S, img_name = batch[0].to(device), batch[1].to(device), batch[2]
+        pred_S = netG_B2S(real_B)
         if img_name[0][-2:] == '01':
-            img_B = pred_B.detach().squeeze(0).cpu()
+            img_S = pred_S.detach().squeeze(0).cpu()
             if not os.path.exists("result"):
                 os.makedirs("result")
-            save_img(img_B, 'result/test_' + img_name[0])
-        real_B = real_B.squeeze(0).permute(1, 2, 0).cpu()
-        pred_B = pred_B.detach().squeeze(0).permute(1, 2, 0).cpu()
-        real_B = real_B.float().numpy()
-        pred_B = pred_B.float().numpy()
-        real_B = (real_B + 1.0) / 2.0
-        pred_B = (pred_B + 1.0) / 2.0
-        cur_psnr = psnr(real_B, pred_B)
-        cur_ssim = ssim(real_B, pred_B, gaussian_weights=True, multichannel=True, use_sample_covariance=False)
+            save_img(img_S, 'result/test_' + img_name[0])
+        real_S = real_S.squeeze(0).permute(1, 2, 0).cpu()
+        pred_S = pred_S.detach().squeeze(0).permute(1, 2, 0).cpu()
+        real_S = real_S.float().numpy()
+        pred_S = pred_S.float().numpy()
+        real_S = (real_S + 1.0) / 2.0
+        pred_S = (pred_S + 1.0) / 2.0
+        cur_psnr = psnr(real_S, pred_S)
+        cur_ssim = ssim(real_S, pred_S, gaussian_weights=True, multichannel=True, use_sample_covariance=False)
         all_psnr.append(cur_psnr)
         all_ssim.append(cur_ssim)
         if img_name[0][-2:] == '01':

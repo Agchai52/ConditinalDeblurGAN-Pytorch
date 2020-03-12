@@ -92,9 +92,9 @@ def train(args):
         cur_d2 = []
         cur_g = []
         for iteration, batch in enumerate(train_data_loader, 1):
-            real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
-            fake_B = netG_B2S(real_A)
-            fake_A = netG_S2B(real_B)
+            real_B, real_S, img_name = batch[0].to(device), batch[1].to(device), batch[2]
+            fake_S = netG_B2S(real_B)
+            fake_B = netG_S2B(real_S)
 
             ############################
             # (1) Update D_S network: maximize log(D(x)) + log(1 - D(G(z)))
@@ -102,14 +102,14 @@ def train(args):
             optimizer_D_S.zero_grad()
 
             # train with fake
-            fake_AB = torch.cat((real_A, fake_B), 1)
-            pred_fake_B = netD_S(fake_AB.detach())
-            loss_d_s_fake = criterion_GAN(pred_fake_B, False)
+            fake_BS = torch.cat((real_B, fake_S), 1)
+            pred_fake_S = netD_S(fake_BS.detach())
+            loss_d_s_fake = criterion_GAN(pred_fake_S, False)
 
             # train with real
-            real_AB = torch.cat((real_A, real_B), 1)
-            pred_real_B = netD_S(real_AB)
-            loss_d_s_real = criterion_GAN(pred_real_B, True)
+            real_BS = torch.cat((real_B, real_S), 1)
+            pred_real_S = netD_S(real_BS)
+            loss_d_s_real = criterion_GAN(pred_real_S, True)
 
             # combine d loss
             loss_d_s = (loss_d_s_fake + loss_d_s_real)
@@ -123,14 +123,14 @@ def train(args):
             optimizer_D_B.zero_grad()
 
             # train with fake
-            fake_BA = torch.cat((real_B, fake_A), 1)
-            pred_fake_A = netD_S(fake_BA.detach())
-            loss_d_b_fake = criterion_GAN(pred_fake_A, False)
+            fake_SB = torch.cat((real_S, fake_B), 1)
+            pred_fake_B = netD_B(fake_SB.detach())
+            loss_d_b_fake = criterion_GAN(pred_fake_B, False)
 
             # train with real
-            real_BA = torch.cat((real_B, real_A), 1)
-            pred_real_A = netD_S(real_BA)
-            loss_d_b_real = criterion_GAN(pred_real_A, True)
+            real_SB = torch.cat((real_S, real_B), 1)
+            pred_real_B = netD_B(real_SB)
+            loss_d_b_real = criterion_GAN(pred_real_B, True)
 
             # combine d loss
             loss_d_b = (loss_d_b_fake + loss_d_b_real)
@@ -143,26 +143,26 @@ def train(args):
             ###########################
             optimizer_G.zero_grad()
 
-            # G_B2S(A) should fake the discriminator
-            fake_AB = torch.cat((real_A, fake_B), 1)
-            pred_fake_B = net_D(fake_AB)
-            loss_g_gan_bs = criterion_GAN(pred_fake_B, True)
+            # S = G_B2S(B) should fake the discriminator S
+            fake_BS = torch.cat((real_B, fake_S), 1)
+            pred_fake_S = netD_S(fake_BS)
+            loss_g_gan_bs = criterion_GAN(pred_fake_S, True)
 
-            # G_B2S(A) should fake the discriminator
-            fake_BA = torch.cat((real_B, fake_A), 1)
-            pred_fake_A = net_D(fake_BA)
-            loss_g_gan_sb = criterion_GAN(pred_fake_A, True)
+            # B = G_B2S(S) should fake the discriminator B
+            fake_SB = torch.cat((real_S, fake_B), 1)
+            pred_fake_B = netD_B(fake_SB)
+            loss_g_gan_sb = criterion_GAN(pred_fake_B, True)
 
             # Cycle
-            recovered_A = netG_S2B(fake_B)
-            recovered_B = netG_B2S(fake_A)
+            recovered_B = netG_S2B(fake_S)
+            recovered_S = netG_B2S(fake_B)
 
             # G(A) = B
             loss_g_gan = loss_g_gan_sb + loss_g_gan_bs
-            loss_cycle = criterion_Cycle(recovered_A, real_A) + criterion_Cycle(recovered_B, real_B)
-            loss_g_l2 = (criterion_L2(fake_B, real_B) + criterion_L2(fake_A, real_A)) * args.L1_lambda
-            loss_g_darkCh = (criterion_DarkChannel(fake_B, real_B) + criterion_DarkChannel(fake_A, real_A)) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) + criterion_Gradient(fake_A, real_A)
+            loss_cycle = criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)
+            loss_g_l2 = (criterion_L2(fake_S, real_S) + criterion_L2(fake_B, real_B)) * args.L1_lambda
+            loss_g_darkCh = (criterion_DarkChannel(fake_S, real_S) + criterion_DarkChannel(fake_B, real_B)) * args.dark_channel_lambda
+            loss_g_grad = criterion_Gradient(fake_S, real_S) + criterion_Gradient(fake_B, real_B)
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -177,27 +177,27 @@ def train(args):
             ###########################
             optimizer_G.zero_grad()
 
-            # G_B2S(A) should fake the discriminator
-            fake_AB = torch.cat((real_A, fake_B), 1)
-            pred_fake_B = net_D(fake_AB)
-            loss_g_gan_bs = criterion_GAN(pred_fake_B, True)
+            # S = G_B2S(B) should fake the discriminator S
+            fake_BS = torch.cat((real_B, fake_S), 1)
+            pred_fake_S = netD_S(fake_BS)
+            loss_g_gan_bs = criterion_GAN(pred_fake_S, True)
 
-            # G_B2S(A) should fake the discriminator
-            fake_BA = torch.cat((real_B, fake_A), 1)
-            pred_fake_A = net_D(fake_BA)
-            loss_g_gan_sb = criterion_GAN(pred_fake_A, True)
+            # B = G_B2S(S) should fake the discriminator B
+            fake_SB = torch.cat((real_S, fake_B), 1)
+            pred_fake_B = netD_B(fake_SB)
+            loss_g_gan_sb = criterion_GAN(pred_fake_B, True)
 
             # Cycle
-            recovered_A = netG_S2B(fake_B)
-            recovered_B = netG_B2S(fake_A)
+            recovered_B = netG_S2B(fake_S)
+            recovered_S = netG_B2S(fake_B)
 
             # G(A) = B
             loss_g_gan = loss_g_gan_sb + loss_g_gan_bs
-            loss_cycle = criterion_Cycle(recovered_A, real_A) + criterion_Cycle(recovered_B, real_B)
-            loss_g_l2 = (criterion_L2(fake_B, real_B) + criterion_L2(fake_A, real_A)) * args.L1_lambda
-            loss_g_darkCh = (criterion_DarkChannel(fake_B, real_B) + criterion_DarkChannel(fake_A,
-                                                                                           real_A)) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) + criterion_Gradient(fake_A, real_A)
+            loss_cycle = criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)
+            loss_g_l2 = (criterion_L2(fake_S, real_S) + criterion_L2(fake_B, real_B)) * args.L1_lambda
+            loss_g_darkCh = (criterion_DarkChannel(fake_S, real_S) + criterion_DarkChannel(fake_B,
+                                                                                           real_B)) * args.dark_channel_lambda
+            loss_g_grad = criterion_Gradient(fake_S, real_S) + criterion_Gradient(fake_B, real_B)
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -212,14 +212,16 @@ def train(args):
             #    print(lr_scheduler_G.get_lr())
             counter += 1
 
-            print("===> Epoch[{}]({}/{}): Loss_DB: {:.4f} Loss_DS: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
-            epoch, iteration, len(train_data_loader), loss_d_b.item(), loss_d_b.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()))
+            print("===> Epoch[{}]({}/{}): Loss_DB: {:.4f} Loss_DS: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f} Loss_Cycle: {:.4f}".format(
+            epoch, iteration, len(train_data_loader),
+                loss_d_s_fake.item(), loss_d_s_real.item(), loss_g_sb.item(),
+                loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item(), loss_cycle.item()))
             cur_d1.append(loss_d_s_fake.item())
             cur_d2.append(loss_d_s_real.item())
             cur_g.append(loss_g_gan_bs.item())
 
             # To record losses in a .txt file
-            losses_dg = [loss_d_b.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
+            losses_dg = [loss_d_s.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item(), loss_cycle.item()]
             losses_dg_str = " ".join(str(v) for v in losses_dg)
 
             with open(loss_record, 'a+') as file:
@@ -248,14 +250,14 @@ def train(args):
 
         all_psnr = []
         for batch in test_data_loader:
-            real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
-            pred_B = netG_B2S(real_A)
+            real_B, real_S, img_name = batch[0].to(device), batch[1].to(device), batch[2]
+            pred_S = netG_B2S(real_B)
             if epoch == args.epoch - 1 and img_name[0][-2:] == '01':
-                img_B = pred_B.detach().squeeze(0).cpu()
-                save_img(img_B, '{}/test_'.format(args.test_dir) + img_name[0])
-            real_B = (real_B + 1.0) / 2.0
-            pred_B = (pred_B + 1.0) / 2.0
-            mse = criterion_L2(pred_B, real_B)
+                img_S = pred_S.detach().squeeze(0).cpu()
+                save_img(img_S, '{}/test_'.format(args.test_dir) + img_name[0])
+            real_S = (real_S + 1.0) / 2.0
+            pred_S = (pred_S + 1.0) / 2.0
+            mse = criterion_L2(pred_S, real_S)
             psnr = 10 * log10(1 / mse.item())
             if epoch == args.epoch - 1 and img_name[0][-2:] == '01':
                 print('test_{}: PSNR = {} dB'.format(img_name[0], psnr))
