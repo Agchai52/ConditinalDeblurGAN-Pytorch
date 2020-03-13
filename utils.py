@@ -99,9 +99,9 @@ def plot_losses():
     plt.savefig("plot_psnr_loss.jpg")
 
     plt.figure()
-    plt.plot(ddg_ave[:, 0], 'b-', lable='d_fake')
-    plt.plot(ddg_ave[:, 1], 'r-', lable='d_real')
-    plt.plot(ddg_ave[:, 2], 'g-', lable='gan')
+    plt.plot(ddg_ave[:, 0], 'b-', label='d_fake')
+    plt.plot(ddg_ave[:, 1], 'r-', label='d_real')
+    plt.plot(ddg_ave[:, 2], 'g-', label='gan')
     plt.xlabel("epochs")
     plt.ylabel("Average loss")
     plt.legend()
