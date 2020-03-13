@@ -110,4 +110,4 @@ def plot_losses():
     plt.title("D1_D2_G PSNR")
     plt.savefig("plot_ddg_loss.jpg")
 
-##plot_losses()
+plot_losses()
