@@ -193,7 +193,7 @@ def train(args):
 
             # G(A) = B
             loss_g_gan = loss_g_gan_sb + loss_g_gan_bs
-            loss_cycle = criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)
+            loss_cycle = (criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)) * args.L1_lambda
             loss_g_l2 = (criterion_L2(fake_S, real_S) + criterion_L2(fake_B, real_B)) * args.L1_lambda
             loss_g_darkCh = (criterion_DarkChannel(fake_S, real_S) + criterion_DarkChannel(fake_B,
                                                                                            real_B)) * args.dark_channel_lambda
