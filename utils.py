@@ -27,7 +27,7 @@ def psnr(img1, img2):
 
 def find_latest_model(net_path):
     file_list = os.listdir(net_path)
-    model_names = [f[14:-4] for f in file_list if ".pth" in f]
+    model_names = [int(f[14:-4]) for f in file_list if ".pth" in f]
     if len(model_names) == 0:
         return False
     else:
