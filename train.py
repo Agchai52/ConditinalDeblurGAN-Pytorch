@@ -69,8 +69,12 @@ def train(args):
 
     loss_record = "loss_record.txt"
     psnr_record = "psnr_record.txt"
+    ddg_record = "ddg_record.txt"
     print('===> Training')
     for epoch in range(args.epoch):
+        cur_d1 = []
+        cur_d2 = []
+        cur_g = []
         for iteration, batch in enumerate(train_data_loader, 1):
             real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
             fake_B = net_G(real_A)
@@ -91,7 +95,7 @@ def train(args):
             loss_d_real = criterion_GAN(pred_real, True)
 
             # combine d loss
-            loss_d = (loss_d_fake + loss_d_real) * 10
+            loss_d = (loss_d_fake + loss_d_real)
 
             loss_d.backward()
             optimizer_D.step()
@@ -104,12 +108,12 @@ def train(args):
             # G(A) should fake the discriminator
             fake_AB = torch.cat((real_A, fake_B), 1)
             pred_fake = net_D(fake_AB)
-            loss_g_gan = criterion_GAN(pred_fake, True) * 10
+            loss_g_gan = criterion_GAN(pred_fake, True)
 
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
             loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) * 10
+            loss_g_grad = criterion_Gradient(fake_B, real_B)
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -126,12 +130,12 @@ def train(args):
             # G(A) should fake the discriminator
             fake_AB = torch.cat((real_A, fake_B), 1)
             pred_fake = net_D(fake_AB)
-            loss_g_gan = criterion_GAN(pred_fake, True) * 10
+            loss_g_gan = criterion_GAN(pred_fake, True)
 
             # G(A) = B
             loss_g_l2 = criterion_L2(fake_B, real_B) * args.L1_lambda
             loss_g_darkCh = criterion_DarkChannel(fake_B, real_B) * args.dark_channel_lambda
-            loss_g_grad = criterion_Gradient(fake_B, real_B) * 10
+            loss_g_grad = criterion_Gradient(fake_B, real_B)
 
             loss_g = loss_g_gan \
                      + (loss_g_l2 + loss_g_grad) \
@@ -148,6 +152,10 @@ def train(args):
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
             epoch, iteration, len(train_data_loader), loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()))
 
+            cur_d1.append(loss_d_s_fake.item())
+            cur_d2.append(loss_d_s_real.item())
+            cur_g.append(loss_g_gan_bs.item())
+
             # To record losses in a .txt file
             losses_dg = [loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
             losses_dg_str = " ".join(str(v) for v in losses_dg)
@@ -156,8 +164,8 @@ def train(args):
                 file.writelines(losses_dg_str + "\n")
 
             if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
-                net_G_save_path = "checkpoint/{}/netG/G_model_step_{}.pth".format(args.dataset_name, counter)
-                net_D_save_path = "checkpoint/{}/netD/D_model_step_{}.pth".format(args.dataset_name, counter)
+                net_G_save_path = "checkpoint/{}/netG/G_model_epoch_{}.pth".format(args.dataset_name, epoch)
+                net_D_save_path = "checkpoint/{}/netD/D_model_epoch_{}.pth".format(args.dataset_name, epoch)
                 torch.save(net_G, net_G_save_path)
                 torch.save(net_D, net_D_save_path)
                 print("Checkpoint saved to {}".format("checkpoint/" + args.dataset_name))
@@ -165,6 +173,12 @@ def train(args):
         # Update Learning rate
         #lr_scheduler_G.step()
         #lr_scheduler_D.step()
+
+        ddg = [sum(cur_d1) / len(train_data_loader), sum(cur_d2) / len(train_data_loader),
+               sum(cur_g) / len(train_data_loader)]
+        ddg_str = " ".join(str(v) for v in ddg)
+        with open(ddg_record, 'a+') as file:
+            file.writelines(ddg_str + "\n")
 
         all_psnr = []
         for batch in test_data_loader:

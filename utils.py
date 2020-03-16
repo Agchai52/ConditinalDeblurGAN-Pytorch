@@ -27,15 +27,15 @@ def psnr(img1, img2):
 
 def find_latest_model(net_path):
     file_list = os.listdir(net_path)
-    model_names = [f[13:-4] for f in file_list if ".pth" in f]
+    model_names = [int(f[14:-4]) for f in file_list if ".pth" in f]
     if len(model_names) == 0:
         return False
     else:
         iter_num = max(model_names)
         if net_path[-1] == 'G':
-            return os.path.join(net_path, "G_model_step_{}.pth".format(iter_num))
+            return os.path.join(net_path, "G_model_epoch_{}.pth".format(iter_num))
         elif net_path[-1] == 'D':
-            return os.path.join(net_path, "D_model_step_{}.pth".format(iter_num))
+            return os.path.join(net_path, "D_model_epoch_{}.pth".format(iter_num))
 
 class LambdaLR():
     def __init__(self, n_epochs, offset, decay_start_epoch):
@@ -50,9 +50,11 @@ class LambdaLR():
 def plot_losses():
     loss_record = "loss_record.txt"
     psnr_record = "psnr_record.txt"
+    ddg_record = "ddg_record.txt"
 
     losses_dg = np.loadtxt(loss_record)
     psnr_ave = np.loadtxt(psnr_record)
+    ddg_ave = np.loadtxt(ddg_record)
 
     plt.figure()
     plt.plot(losses_dg[0:-1:100, 0], 'r-', label='d_loss')
@@ -93,6 +95,18 @@ def plot_losses():
     # plt.ylim(ymin=0, ymax=60)  # ymax=60
     plt.title("Validation PSNR")
     plt.savefig("plot_psnr_loss.jpg")
+
+    plt.figure()
+    plt.plot(ddg_ave[:, 0], 'b-', label='d_fake')
+    plt.plot(ddg_ave[:, 1], 'r-', label='d_real')
+    plt.plot(ddg_ave[:, 2], 'g-', label='gan')
+    plt.xlabel("epochs")
+    plt.ylabel("Average loss")
+    plt.legend()
+    # plt.xlim(xmin=-5, xmax=300)  # xmax=300
+    # plt.ylim(ymin=0, ymax=60)  # ymax=60
+    plt.title("D1_D2_G PSNR")
+    plt.savefig("plot_ddg_loss.jpg")
 
 
 plot_losses()
