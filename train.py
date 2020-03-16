@@ -152,9 +152,9 @@ def train(args):
             print("===> Epoch[{}]({}/{}): Loss_D: {:.4f} Loss_G: {:.4f} Loss_GAN: {:.4f} Loss_L2: {:.4f} Loss_Grad: {:.4f} Loss_Dark: {:.4f}".format(
             epoch, iteration, len(train_data_loader), loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()))
 
-            cur_d1.append(loss_d_s_fake.item())
-            cur_d2.append(loss_d_s_real.item())
-            cur_g.append(loss_g_gan_bs.item())
+            cur_d1.append(loss_d_fake.item())
+            cur_d2.append(loss_d_real.item())
+            cur_g.append(loss_g_gan.item())
 
             # To record losses in a .txt file
             losses_dg = [loss_d.item(), loss_g.item(), loss_g_gan.item(), loss_g_l2.item(), loss_g_grad.item(), loss_g_darkCh.item()]
