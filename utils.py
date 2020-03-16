@@ -109,4 +109,4 @@ def plot_losses():
     plt.savefig("plot_ddg_loss.jpg")
 
 
-plot_losses()
+#plot_losses()
