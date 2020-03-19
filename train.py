@@ -230,8 +230,8 @@ def train(args):
             if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
                 net_g_bs_save_path = net_g_bs_path + "/G_model_epoch_{}.pth".format(epoch)
                 net_g_sb_save_path = net_g_sb_path + "/G_model_epoch_{}.pth".format(epoch)
-                net_d_s_save_path = net_d_s_path + "/B_model_epoch_{}.pth".format(epoch)
-                net_d_b_save_path = net_d_b_path + "/B_model_epoch_{}.pth".format(epoch)
+                net_d_s_save_path = net_d_s_path + "/D_model_epoch_{}.pth".format(epoch)
+                net_d_b_save_path = net_d_b_path + "/D_model_epoch_{}.pth".format(epoch)
 
                 torch.save(netG_B2S, net_g_bs_save_path)
                 torch.save(netG_S2B, net_g_sb_save_path)
