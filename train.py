@@ -159,7 +159,7 @@ def train(args):
 
             # G(A) = B
             loss_g_gan = loss_g_gan_sb + loss_g_gan_bs
-            loss_cycle = (criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)) * args.L1_lambda
+            loss_cycle = (criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)) * 2
             loss_g_l2 = (criterion_L2(fake_S, real_S) + criterion_L2(fake_B, real_B)) * args.L1_lambda
             loss_g_darkCh = (criterion_DarkChannel(fake_S, real_S) + criterion_DarkChannel(fake_B, real_B)) * args.dark_channel_lambda
             loss_g_grad = criterion_Gradient(fake_S, real_S) + criterion_Gradient(fake_B, real_B)
@@ -193,7 +193,7 @@ def train(args):
 
             # G(A) = B
             loss_g_gan = loss_g_gan_sb + loss_g_gan_bs
-            loss_cycle = (criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)) * args.L1_lambda
+            loss_cycle = (criterion_Cycle(recovered_B, real_B) + criterion_Cycle(recovered_S, real_S)) * 2
             loss_g_l2 = (criterion_L2(fake_S, real_S) + criterion_L2(fake_B, real_B)) * args.L1_lambda
             loss_g_darkCh = (criterion_DarkChannel(fake_S, real_S) + criterion_DarkChannel(fake_B,
                                                                                            real_B)) * args.dark_channel_lambda
@@ -227,7 +227,7 @@ def train(args):
             with open(loss_record, 'a+') as file:
                 file.writelines(losses_dg_str + "\n")
 
-            if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
+            if (counter % 500 == 1) or iteration == len(train_data_loader) - 1:
                 net_g_bs_save_path = net_g_bs_path + "/G_model_epoch_{}.pth".format(epoch)
                 net_g_sb_save_path = net_g_sb_path + "/G_model_epoch_{}.pth".format(epoch)
                 net_d_s_save_path = net_d_s_path + "/D_model_epoch_{}.pth".format(epoch)
