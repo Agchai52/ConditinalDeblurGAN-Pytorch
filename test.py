@@ -47,7 +47,7 @@ def test(args):
     for batch in test_data_loader:
         real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
         pred_B = net_G(real_A)
-        if img_name[0][-2:] == '01':
+        if img_name[0][-3:] == '001':
             img_B = pred_B.detach().squeeze(0).cpu()
             if not os.path.exists("result"):
                 os.makedirs("result")
@@ -62,7 +62,7 @@ def test(args):
         cur_ssim = ssim(real_B, pred_B, gaussian_weights=True, multichannel=True, use_sample_covariance=False)
         all_psnr.append(cur_psnr)
         all_ssim.append(cur_ssim)
-        if img_name[0][-2:] == '01':
+        if img_name[0][-3:] == '001':
             print('test_{}: PSNR = {} dB, SSIM = {}'.format(img_name[0], cur_psnr, cur_ssim))
         #print("Image {}, PSNR = {}, SSIM = {}".format(img_name[0], cur_psnr, cur_ssim))
 
