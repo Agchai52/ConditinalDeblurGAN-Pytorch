@@ -16,7 +16,7 @@ from network import *
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('--dataset_name', dest='dataset_name', default='BlindDeblurGAN', help='BlindDeblurGAN')
-parser.add_argument('--epoch', dest='epoch', type=int, default=10, help='# of training epochs')
+parser.add_argument('--epoch', dest='epoch', type=int, default=200, help='# of training epochs')
 parser.add_argument('--epoch_start', dest='epoch_start', type=int, default=0, help='# of start epoch')
 parser.add_argument('--epoch_decay', dest='epoch_decay', type=int, default=0, help='# of epoch to linearly decay lr to 0')
 parser.add_argument('--batch_size', dest='batch_size', type=int, default=1, help='# images in batch')

@@ -37,6 +37,7 @@ def find_latest_model(net_path):
         elif net_path[-1] == 'D':
             return os.path.join(net_path, "D_model_epoch_{}.pth".format(iter_num))
 
+
 class LambdaLR():
     def __init__(self, n_epochs, offset, decay_start_epoch):
         assert ((n_epochs - decay_start_epoch) > 0), "Decay must start before the training session ends!"
@@ -46,6 +47,7 @@ class LambdaLR():
 
     def step(self, epoch):
         return 1.0 - max(0, epoch + self.offset - self.decay_start_epoch)/(self.n_epochs - self.decay_start_epoch)
+
 
 def plot_losses():
     loss_record = "loss_record.txt"
@@ -107,6 +109,5 @@ def plot_losses():
     #plt.ylim(ymin=0, ymax=2.)  # ymax=60
     plt.title("D1_D2_G PSNR")
     plt.savefig("plot_ddg_loss.jpg")
-
 
 #plot_losses()

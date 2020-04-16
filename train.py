@@ -163,7 +163,7 @@ def train(args):
             with open(loss_record, 'a+') as file:
                 file.writelines(losses_dg_str + "\n")
 
-            if (counter % 500 == 1) or ((epoch == args.epoch - 1) and (iteration == len(train_data_loader) - 1)):
+            if (counter % 500 == 1) or (iteration == len(train_data_loader) - 1):
                 net_G_save_path = "checkpoint/{}/netG/G_model_epoch_{}.pth".format(args.dataset_name, epoch)
                 net_D_save_path = "checkpoint/{}/netD/D_model_epoch_{}.pth".format(args.dataset_name, epoch)
                 torch.save(net_G, net_G_save_path)
@@ -184,14 +184,14 @@ def train(args):
         for batch in test_data_loader:
             real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
             pred_B = net_G(real_A)
-            if epoch == args.epoch - 1 and img_name[0][-3:] == '001':
+            if img_name[0][-3:] == '001':
                 img_B = pred_B.detach().squeeze(0).cpu()
                 save_img(img_B, '{}/test_'.format(args.test_dir) + img_name[0])
             real_B = (real_B + 1.0) / 2.0
             pred_B = (pred_B + 1.0) / 2.0
             mse = criterion_L2(pred_B, real_B)
             psnr = 10 * log10(1 / mse.item())
-            if epoch == args.epoch - 1 and img_name[0][-3:] == '001':
+            if img_name[0][-3:] == '001':
                 print('test_{}: PSNR = {} dB'.format(img_name[0], psnr))
             all_psnr.append(psnr)
         PSNR_average.append(sum(all_psnr) / len(test_data_loader))
