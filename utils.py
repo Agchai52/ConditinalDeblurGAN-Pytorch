@@ -2,18 +2,21 @@ from __future__ import division
 import os
 import numpy as np
 import math
+import torch
+import torchvision.transforms as transforms
 from PIL import Image
 import matplotlib as mpl
 mpl.use('TkAgg')
 import matplotlib.pyplot as plt
 
 
-def save_img(image_tensor, filename):
-    image_numpy = image_tensor.float().numpy()
-    image_numpy = (np.transpose(image_numpy, (1, 2, 0)) + 1) / 2.0 * 255.0
-    image_numpy = image_numpy.clip(0, 255)
-    image_numpy = image_numpy.astype(np.uint8)
-    image_pil = Image.fromarray(image_numpy)
+def save_img(args, image_tensor, filename):
+    image_tensor = torch.clamp(image_tensor, min=-1.0, max=1.0)
+    transform = transforms.Compose([transforms.Normalize((-1.0, -1.0, -1.0), (2.0, 2.0, 2.0)),
+                                    transforms.ToPILImage(),
+                                    transforms.Resize((args.H, args.W))
+                                    ])
+    image_pil = transform(image_tensor)
     image_pil.save(filename+'.png')
 
 
@@ -27,15 +30,15 @@ def psnr(img1, img2):
 
 def find_latest_model(net_path):
     file_list = os.listdir(net_path)
-    model_names = [int(f[14:-4]) for f in file_list if ".pth" in f]
+    model_names = [int(f[14:-4]) for f in file_list if ".tar" in f]
     if len(model_names) == 0:
         return False
     else:
         iter_num = max(model_names)
         if net_path[-1] == 'G':
-            return os.path.join(net_path, "G_model_epoch_{}.pth".format(iter_num))
+            return os.path.join(net_path, "G_model_epoch_{}.tar".format(iter_num))
         elif net_path[-1] == 'D':
-            return os.path.join(net_path, "D_model_epoch_{}.pth".format(iter_num))
+            return os.path.join(net_path, "D_model_epoch_{}.tar".format(iter_num))
 
 
 class LambdaLR():

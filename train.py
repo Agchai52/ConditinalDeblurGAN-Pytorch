@@ -32,20 +32,37 @@ def train(args):
     print('===> Building models')
     net_g_path = "checkpoint/{}/netG".format(args.dataset_name)
     net_d_path = "checkpoint/{}/netD".format(args.dataset_name)
+
+    net_G = Generator(args, device).to(device)
+    net_D = Discriminator(args, device).to(device)
+
+    optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
+    optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
+
+    # lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
+    # lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
+
     if not find_latest_model(net_g_path) or not find_latest_model(net_d_path):
         print(" [!] Load failed...")
-        net_G = Generator(args).to(device)
-        net_D = Discriminator(args, device).to(device)
-
         net_D.apply(weights_init)
         net_G.apply(weights_init)
+        pre_epoch = 0
     else:
         print(" [*] Load SUCCESS")
         model_path_G = find_latest_model(net_g_path)
         model_path_D = find_latest_model(net_d_path)
-        net_G = torch.load(model_path_G).to(device)
-        net_D = torch.load(model_path_D).to(device)
 
+        checkpoint = torch.load(model_path_G)
+        net_G.load_state_dict(checkpoint['model_state_dict'])
+        optimizer_G.load_state_dict(checkpoint['optimizer_state_dict'])
+        pre_epoch = checkpoint['epoch']
+
+        checkpoint = torch.load(model_path_D)
+        net_D.load_state_dict(checkpoint['model_state_dict'])
+        optimizer_D.load_state_dict(checkpoint['optimizer_state_dict'])
+
+        net_G.train()
+        net_D.train()
     print(net_G)
     print(net_D)
 
@@ -54,12 +71,6 @@ def train(args):
     criterion_GAN = GANLoss().to(device)
     criterion_DarkChannel = DarkChannelLoss().to(device)
     criterion_Gradient = GradientLoss(device=device).to(device)
-
-    optimizer_G = optim.Adam(net_G.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
-    optimizer_D = optim.Adam(net_D.parameters(), lr=args.lr, betas=(args.beta1, 0.999), amsgrad=True)
-
-    #lr_scheduler_G = torch.optim.lr_scheduler.LambdaLR(optimizer_G, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
-    #lr_scheduler_D = torch.optim.lr_scheduler.LambdaLR(optimizer_D, lr_lambda=LambdaLR(args.epoch, args.epoch_start, args.epoch_decay).step)
 
     params = net_G.parameters()
     counter = 0
@@ -164,10 +175,18 @@ def train(args):
                 file.writelines(losses_dg_str + "\n")
 
             if (counter % 500 == 1) or (iteration == len(train_data_loader) - 1):
-                net_G_save_path = "checkpoint/{}/netG/G_model_epoch_{}.pth".format(args.dataset_name, epoch)
-                net_D_save_path = "checkpoint/{}/netD/D_model_epoch_{}.pth".format(args.dataset_name, epoch)
-                torch.save(net_G, net_G_save_path)
-                torch.save(net_D, net_D_save_path)
+                net_G_save_path = "checkpoint/{}/netG/G_model_epoch_{}.tar".format(args.dataset_name, epoch+1)
+                net_D_save_path = "checkpoint/{}/netD/D_model_epoch_{}.tar".format(args.dataset_name, epoch+1)
+                torch.save({
+                    'epoch': epoch + 1,
+                    'model_state_dict': net_G.state_dict(),
+                    'optimizer_state_dict': optimizer_G.state_dict()
+                }, net_G_save_path)
+                torch.save({
+                    'epoch': epoch + 1,
+                    'model_state_dict': net_D.state_dict(),
+                    'optimizer_state_dict': optimizer_D.state_dict()
+                }, net_D_save_path)
                 print("Checkpoint saved to {}".format("checkpoint/" + args.dataset_name))
 
         # Update Learning rate
@@ -181,14 +200,16 @@ def train(args):
             file.writelines(ddg_str + "\n")
 
         all_psnr = []
+        net_G.eval()
         for batch in test_data_loader:
             real_A, real_B, img_name = batch[0].to(device), batch[1].to(device), batch[2]
             pred_B = net_G(real_A)
             if img_name[0][-3:] == '001':
                 img_B = pred_B.detach().squeeze(0).cpu()
-                save_img(img_B, '{}/test_'.format(args.test_dir) + img_name[0])
+                save_img(args, img_B, '{}/test_'.format(args.test_dir) + img_name[0])
             real_B = (real_B + 1.0) / 2.0
             pred_B = (pred_B + 1.0) / 2.0
+            pred_B = torch.clamp(pred_B, 0.0, 1.0)
             mse = criterion_L2(pred_B, real_B)
             psnr = 10 * log10(1 / mse.item())
             if img_name[0][-3:] == '001':
@@ -205,9 +226,3 @@ def train(args):
     print("===> Saving Losses")
     plot_losses()
     print("===> Training finished")
-
-
-
-
-
-

@@ -6,21 +6,26 @@ import torchvision.transforms as transforms
 from Dataset import DeblurDataset
 from torch.utils.data import DataLoader
 from utils import *
-from skimage.measure import compare_ssim as ssim
+from network import *
+from skimage.metrics import structural_similarity as ssim
 
 
 def test(args):
     device = torch.device('cuda:{}'.format(args.gpu) if (torch.cuda.is_available() and args.gpu > 0) else "cpu")
     print("====> Loading model")
     net_g_path = "checkpoint/{}/netG".format(args.dataset_name)
+    net_G = Generator(args, device).to(device)
     if not find_latest_model(net_g_path):
         print(" [!] Load failed...")
         raise Exception('No model to load for testing!')
     else:
         print(" [*] Load SUCCESS")
         model_path_G = find_latest_model(net_g_path)
-        net_G = torch.load(model_path_G).to(device)
         print(model_path_G)
+
+        checkpoint = torch.load(model_path_G)
+        net_G.load_state_dict(checkpoint['model_state_dict'])
+        net_G.eval()
 
     print("====> Loading data")
     ############################
@@ -51,20 +56,20 @@ def test(args):
             img_B = pred_B.detach().squeeze(0).cpu()
             if not os.path.exists("result"):
                 os.makedirs("result")
-            save_img(img_B, 'result/test_' + img_name[0])
+            save_img(args, img_B, 'result/test_' + img_name[0])
         real_B = real_B.squeeze(0).permute(1, 2, 0).cpu()
         pred_B = pred_B.detach().squeeze(0).permute(1, 2, 0).cpu()
         real_B = real_B.float().numpy()
         pred_B = pred_B.float().numpy()
         real_B = (real_B + 1.0) / 2.0
         pred_B = (pred_B + 1.0) / 2.0
+        pred_B = np.clip(pred_B, 0.0, 1.0)
         cur_psnr = psnr(real_B, pred_B)
         cur_ssim = ssim(real_B, pred_B, gaussian_weights=True, multichannel=True, use_sample_covariance=False)
         all_psnr.append(cur_psnr)
         all_ssim.append(cur_ssim)
         if img_name[0][-3:] == '001':
             print('test_{}: PSNR = {} dB, SSIM = {}'.format(img_name[0], cur_psnr, cur_ssim))
-        #print("Image {}, PSNR = {}, SSIM = {}".format(img_name[0], cur_psnr, cur_ssim))
 
     total_time = time.time() - start_time
     ave_psnr = sum(all_psnr)/len(test_data_loader)
