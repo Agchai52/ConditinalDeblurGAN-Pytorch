@@ -82,7 +82,8 @@ def train(args):
     psnr_record = "psnr_record.txt"
     ddg_record = "ddg_record.txt"
     print('===> Training')
-    for epoch in range(args.epoch):
+    print('Start from epoch: ', pre_epoch)
+    for epoch in range(pre_epoch, args.epoch):
         cur_d1 = []
         cur_d2 = []
         cur_g = []
